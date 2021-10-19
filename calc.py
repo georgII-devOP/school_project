@@ -17,6 +17,7 @@ class Calculator(QMainWindow):
         self.stroka = ''
         self.itog = ''
         self.numbers_probels = ''
+        self.znak = ''
 
         self.flag = False
         self.flag2 = False
@@ -25,6 +26,7 @@ class Calculator(QMainWindow):
         self.flag5 = False
         self.flag6 = False
         self.flag7 = False
+        self.flag8 = False
 
         self.btn0.clicked.connect(lambda: self.output_of_numbers('0'))
         self.btn1.clicked.connect(lambda: self.output_of_numbers('1'))
@@ -51,16 +53,28 @@ class Calculator(QMainWindow):
 
     def output_of_numbers(self, number):
         try:
-            self.stroka += number
-            if self.stroka[0] == '0' and not self.flag3:
-                self.stroka = '0'
+            if not self.flag:
+                self.stroka += number
+                if self.stroka[0] == '0' and not self.flag3:
+                    self.stroka = '0'
 
-            if len(self.stroka) > 10:
-                self.stroka, self.numbers_probels, self.itog = '', '', ''
-                self.table.display('Error')
+                if len(self.stroka) > 10:
+                    self.stroka, self.numbers_probels, self.itog = '', '', ''
+                    self.table.display('Error')
+                else:
+                    self.count = 1
+                    self.beautiful_number()
 
-            self.count = 1
-            self.beautiful_number()
+            else:
+                self.itog += number
+
+                if len(self.itog) > 10:
+                    self.stroka, self.numbers_probels, self.itog = '', '', ''
+                    self.table.display('Error')
+                else:
+                    self.count = 1
+                    self.flag8 = True
+                    self.beautiful_number()
 
         except Exception as error:
             print('Ошибка:', error)
@@ -70,8 +84,8 @@ class Calculator(QMainWindow):
     def beautiful_number(self):
         try:
             if '.' in self.stroka and not self.flag2 and not self.flag4 and not self.flag7:
-                self.c = self.stroka[self.stroka.index('.') + self.count:]
-                self.numbers_probels += self.c[-1]
+                c = self.stroka[self.stroka.index('.') + self.count:]
+                self.numbers_probels += c[-1]
                 self.count += 1
                 self.table.display(self.numbers_probels)
                 print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
@@ -79,27 +93,84 @@ class Calculator(QMainWindow):
             else:
                 if (self.flag2 and not self.flag6) or self.flag7:
                     if 'e-' not in self.stroka:
-                        self.s = self.stroka[self.stroka.index('.'):]
+                        s = self.stroka[self.stroka.index('.'):]
                         self.stroka = self.stroka[:self.stroka.index('.')]
                         self.res = [''.join(self.stroka[::-1][i:i + 3])[::-1] for i in range(0, len(self.stroka), 3)]
-                        self.numbers_probels = str(' '.join(self.res[::-1])) + self.s
-                        self.stroka += self.s
+                        self.numbers_probels = str(' '.join(self.res[::-1])) + s
+                        self.stroka += s
                         print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
                         self.table.display(self.numbers_probels)
                         self.flag2 = False
                         self.flag7 = False
 
                     else:
+                        s = self.stroka[self.stroka.index('.'):]
+                        self.stroka = self.stroka[:self.stroka.index('.')]
+                        res = [''.join(self.stroka[::-1][i:i + 3])[::-1] for i in
+                               range(0, len(self.stroka), 3)]
+                        self.numbers_probels = str(' '.join(res[::-1])) + s
+                        self.stroka += s
+                        print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
+                        self.table.display(self.numbers_probels)
+                        self.flag4 = False
+
+                elif self.flag4:
+                    if self.flag:
+                        if '.' in self.itog:
+                            s = self.itog[self.itog.index('.'):]
+                            self.itog = self.itog[:self.itog.index('.')]
+                            res = [''.join(self.itog[::-1][i:i + 3])[::-1] for i in
+                                   range(0, len(self.itog), 3)]
+                            print('res = ', res)
+                            self.numbers_probels = str(' '.join(res[::-1])) + s
+                            print('num = ', self.numbers_probels)
+                            self.itog += s
+                            print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
+                            self.table.display(self.numbers_probels)
+                            self.flag4 = False
+                        else:
+                            res = [''.join(self.itog[::-1][i:i + 3])[::-1] for i in
+                                   range(0, len(self.itog), 3)]
+                            self.numbers_probels = str(' '.join(res[::-1]))
+                            self.table.display(self.numbers_probels)
+                            print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
+                            self.flag4 = False
+
+                    else:
                         self.table.display(self.stroka)
                         self.numbers_probels = self.stroka
 
+                elif self.flag8 and ('+' not in self.itog) and ('-' not in self.itog) and ('*' not in self.itog) and (
+                        '/' not in self.itog):
+                    print(self.flag8, 'zn = ', self.znak)
+                    print(self.itog)
+
+                    if '.' not in self.itog:
+                        self.itog = self.itog.replace(' ', '')
+                        res = [''.join(self.itog[::-1][i:i + 3])[::-1] for i in range(0, len(self.itog), 3)]
+                        self.numbers_probels = str(' '.join(res[::-1]))
+                        self.stroka = self.numbers_probels.replace(' ', '')
+                        self.table.display(self.numbers_probels)
+                        print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
+                        self.flag8 = False
+                        self.flag = False
+                    else:
+                        s = self.itog[self.itog.index('.'):]
+                        self.itog = self.itog[:self.itog.index('.')]
+                        self.res = [''.join(self.itog[::-1][i:i + 3])[::-1] for i in range(0, len(self.itog), 3)]
+                        self.numbers_probels = str(''.join(self.res[::-1])) + s
+                        self.itog += s
+                        print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
+                        self.table.display(self.numbers_probels)
                 else:
-                    self.res = [''.join(self.stroka[::-1][i:i + 3])[::-1] for i in range(0, len(self.stroka), 3)]
-                    self.numbers_probels = str(' '.join(self.res[::-1]))
+                    res = [''.join(self.stroka[::-1][i:i + 3])[::-1] for i in range(0, len(self.stroka), 3)]
+                    self.numbers_probels = str(' '.join(res[::-1]))
                     self.table.display(self.numbers_probels)
+
                     print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
                     self.flag4 = False
                     self.flag6 = False
+                    self.flag8 = False
 
         except Exception as error:
             print('Ошибка:', error)
@@ -123,10 +194,24 @@ class Calculator(QMainWindow):
 
     def comma(self):
         try:
-            self.numbers_probels += '.'
-            self.stroka += '.'
-            self.table.display(self.numbers_probels)
-            self.flag3 = True
+            if not self.flag:
+                if '.' not in self.stroka:
+                    self.numbers_probels += '.'
+                    self.stroka += '.'
+                    self.table.display(self.numbers_probels)
+                    self.flag3 = True
+                else:
+                    self.stroka, self.numbers_probels, self.itog = '', '', ''
+                    self.table.display('Error')
+            else:
+                if '.' not in self.itog:
+                    self.numbers_probels += '.'
+                    self.itog += '.'
+                    self.table.display(self.itog)
+                    self.flag3 = True
+                else:
+                    self.stroka, self.numbers_probels, self.itog = '', '', ''
+                    self.table.display('Error')
 
         except Exception as error:
             print('Ошибка:', error)
@@ -146,11 +231,14 @@ class Calculator(QMainWindow):
                 self.stroka = ''
                 self.numbers_probels = ''
                 self.itog += self.znak
+
             else:
                 self.stroka += self.znak
                 self.numbers_probels = ''
                 self.itog = self.stroka
                 self.stroka = ''
+
+            self.flag = False
 
         except Exception as error:
             print('Ошибка:', error)
@@ -165,7 +253,7 @@ class Calculator(QMainWindow):
                 self.flag4 = True
                 self.beautiful_number()
             else:
-                self.stroka = self.stroka[:-1]
+                self.stroka = self.stroka[:-1].replace(' ', '')
                 self.numbers_probels = self.numbers_probels[:-1]
                 print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
                 self.flag4 = True
@@ -237,7 +325,7 @@ class Calculator(QMainWindow):
             else:
                 if '.' in self.itog:
                     self.stroka = str(sqrt(int(self.itog.replace(' ', '')[:self.itog.index('.')])))
-                    self.stroka = self.stroka[:self.stroka.index('.') + 4]
+                    self.stroka = self.stroka[:self.stroka.index('.') + 3]
                     self.numbers_probels = self.stroka[:-1]
                     self.itog = self.stroka
                     self.flag7 = True
@@ -245,7 +333,7 @@ class Calculator(QMainWindow):
                     self.beautiful_number()
                 else:
                     self.stroka = str(sqrt(int(self.itog.replace(' ', ''))))
-                    self.stroka = self.stroka[:self.stroka.index('.') + 4]
+                    self.stroka = self.stroka[:self.stroka.index('.') + 3]
                     self.numbers_probels = self.stroka[:-1]
                     self.itog = self.stroka
                     self.flag7 = True
@@ -266,25 +354,30 @@ class Calculator(QMainWindow):
                 print('Итог посчитан', self.itog)
 
                 if '.' in self.itog:
-                    self.a = self.itog.index('.')
+                    a = self.itog.index('.')
                     self.it = self.itog.split('.')[1]
                     self.itog = self.itog.split('.')[0]
                     self.result = [''.join(self.itog[::-1][i:i + 3])[::-1] for i in range(0, len(self.itog), 3)]
-                    self.itog = (str(' '.join(self.result[::-1])) + '.' + self.it[:3])[:self.a + 3]
+
+                    self.itog = (str(' '.join(self.result[::-1])) + '.' + self.it[:4])
+                    co = self.itog.count(' ')
+                    self.itog = self.itog[:co + a + 2]
 
                     if len(self.itog) <= 10:
                         if self.itog[-1] == '0':
                             self.itog = self.itog[:-1]
-                            self.table.display(self.itog)
-                        else:
-                            self.table.display(self.itog)
+                            if self.itog[-1] == '.':
+                                self.itog = self.itog[:-1]
+
+                        self.table.display(self.itog)
+
                     else:
                         self.stroka, self.numbers_probels, self.itog = '', '', ''
                         self.table.display('Error')
 
                 else:
-                    self.result = [''.join(self.itog[::-1][i:i + 3])[::-1] for i in range(0, len(self.itog), 3)]
-                    self.itog = str(' '.join(self.result[::-1]))
+                    result = [''.join(self.itog[::-1][i:i + 3])[::-1] for i in range(0, len(self.itog), 3)]
+                    self.itog = str(' '.join(result[::-1]))
 
                     if len(self.itog) <= 10:
                         self.table.display(self.itog)
