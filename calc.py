@@ -27,6 +27,7 @@ class Calculator(QMainWindow):
         self.flag6 = False
         self.flag7 = False
         self.flag8 = False
+        self.flag9 = False
 
         self.btn0.clicked.connect(lambda: self.output_of_numbers('0'))
         self.btn1.clicked.connect(lambda: self.output_of_numbers('1'))
@@ -57,7 +58,7 @@ class Calculator(QMainWindow):
                 self.stroka += number
                 if self.stroka[0] == '0' and not self.flag3:
                     self.stroka = ''
-                    self.table.display('0')
+                    self.flag9 = True
 
                 if len(self.stroka) > 12:
                     self.stroka, self.numbers_probels, self.itog = '', '', ''
@@ -173,6 +174,11 @@ class Calculator(QMainWindow):
 
                     self.table.display(self.numbers_probels)
                     self.flag8 = False
+
+                elif self.flag9:
+                    self.table.display('0')
+                    self.flag9 = False
+
                 else:
                     res = [''.join(self.stroka[::-1][i:i + 3])[::-1] for i in range(0, len(self.stroka), 3)]
                     self.numbers_probels = str(' '.join(res[::-1]))
@@ -194,6 +200,8 @@ class Calculator(QMainWindow):
             self.itog = ''
             self.table.display('0')
             self.flag = False
+            self.flag2 = False
+            self.flag3 = False
             self.flag6 = True
             self.flag7 = False
             print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
