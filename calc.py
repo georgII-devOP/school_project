@@ -29,16 +29,8 @@ class Calculator(QMainWindow):
         self.flag8 = False
         self.flag9 = False
 
-        self.btn0.clicked.connect(lambda: self.output_of_numbers('0'))
-        self.btn1.clicked.connect(lambda: self.output_of_numbers('1'))
-        self.btn2.clicked.connect(lambda: self.output_of_numbers('2'))
-        self.btn3.clicked.connect(lambda: self.output_of_numbers('3'))
-        self.btn4.clicked.connect(lambda: self.output_of_numbers('4'))
-        self.btn5.clicked.connect(lambda: self.output_of_numbers('5'))
-        self.btn6.clicked.connect(lambda: self.output_of_numbers('6'))
-        self.btn7.clicked.connect(lambda: self.output_of_numbers('7'))
-        self.btn8.clicked.connect(lambda: self.output_of_numbers('8'))
-        self.btn9.clicked.connect(lambda: self.output_of_numbers('9'))
+        for n in range(0, 10):
+            getattr(self, 'btn%s' % n).pressed.connect(lambda number=n: self.output_of_numbers(str(number)))
 
         self.btn_plus.clicked.connect(lambda: self.operation_sign())
         self.btn_minus.clicked.connect(lambda: self.operation_sign())
@@ -95,20 +87,29 @@ class Calculator(QMainWindow):
             else:
                 if (self.flag2 and not self.flag6) or self.flag7:
                     if 'e-' not in self.stroka:
-                        s = self.stroka[self.stroka.index('.'):]
-                        self.stroka = self.stroka[:self.stroka.index('.')]
-                        self.res = [''.join(self.stroka[::-1][i:i + 3])[::-1] for i in range(0, len(self.stroka), 3)]
-                        self.numbers_probels = str(' '.join(self.res[::-1])) + s
-                        self.stroka += s
                         if self.numbers_probels[-1] == '0':
                             while self.numbers_probels[-1] == '0' or self.numbers_probels[-1] == '.':
                                 self.numbers_probels = self.numbers_probels[:-1]
                                 if self.numbers_probels[-1] == '.':
                                     self.numbers_probels = self.numbers_probels[:-1]
+                                    break
+                            self.stroka = self.numbers_probels.replace(' ', '')
+
+                        if '.' in self.stroka:
+                            s = self.stroka[self.stroka.index('.'):]
+                            self.stroka = self.stroka[:self.stroka.index('.')]
+                            self.res = [''.join(self.stroka[::-1][i:i + 3])[::-1] for i in
+                                        range(0, len(self.stroka), 3)]
+                            self.numbers_probels = str(' '.join(self.res[::-1])) + s
+                        else:
+                            self.res = [''.join(self.stroka[::-1][i:i + 3])[::-1] for i in
+                                        range(0, len(self.stroka), 3)]
+                            self.numbers_probels = str(' '.join(self.res[::-1]))
 
                         self.stroka = self.numbers_probels.replace(' ', '')
                         self.table.display(self.numbers_probels)
                         self.flag2 = False
+                        self.flag7 = False
 
                     else:
                         self.table.display(self.stroka)
@@ -338,11 +339,12 @@ class Calculator(QMainWindow):
                     self.stroka = str(sqrt(float(self.itog.replace(' ', ''))))
                 else:
                     self.stroka = str(sqrt(int(self.itog.replace(' ', ''))))
-                    self.itog = ''
 
+            self.itog = ''
             self.stroka = self.stroka[:self.stroka.index('.') + 3]
-            self.numbers_probels = self.stroka[:-1]
+            self.numbers_probels = self.stroka
             self.flag7 = True
+            self.flag = False
             print(self.stroka, '||||', self.numbers_probels, '||||', self.itog, '\n')
             self.beautiful_number()
 
